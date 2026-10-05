@@ -216,14 +216,6 @@ class DatabaseHelper {
   }
 
   Future<void> _seedData(Database db) async {
-    // Default admin user
-    await db.insert('users', {
-      'username': 'admin',
-      'password': 'admin123',
-      'email': 'admin@anbar.com',
-      'created_at': DateTime.now().toIso8601String(),
-    });
-
     // Default app settings
     await db.insert('app_settings', {'key': 'theme_mode', 'value': 'light'});
     await db.insert('app_settings', {'key': 'language', 'value': 'fa'});

@@ -10,12 +10,32 @@ class AppStrings {
   String get appTitle          => _d ? 'انبار'            : 'Anbar';
   String get inventoryManagement => _d ? 'مدیریت گدام و فروش' : 'Inventory Management';
   String get welcomeBack       => _d ? 'خوش آمدید'         : 'Welcome Back';
-  String get signInSubtitle    => _d ? 'لطفاً داخل حساب خود شوید' : 'Sign in to your account';
+  String get signInSubtitle    => _d ? 'رمز حساب ذخیره‌شده را وارد کنید' : 'Enter the password of your saved account';
   String get login             => _d ? 'داخل شدن'          : 'Login';
   String get password          => _d ? 'رمز عبور'          : 'Password';
   String get logout            => _d ? 'خروج از حساب'      : 'Logout';
   String get admin             => _d ? 'مدیر'              : 'Admin';
   String get versionLabel      => _d ? 'انبار نسخه ۱.۰.۰' : 'Anbar v1.0.0';
+
+  // ── First run ────────────────────────────────────────────────────────────
+  String get skip              => _d ? 'رد کردن'           : 'Skip';
+  String get continueLabel     => _d ? 'ادامه'             : 'Continue';
+  String get getStarted        => _d ? 'شروع کنید'         : 'Get started';
+  String get onboarding1Title  => _d ? 'گدام و فروش، یکجا' : 'Warehouse and sales, together';
+  String get onboarding1Body   => _d ? 'موجودی، فروش و گزارش‌ها را از یک اپ ساده و روشن مدیریت کنید.' : 'Manage stock, sales and reports from one clear app.';
+  String get onboarding2Title  => _d ? 'موجودی همیشه معلوم' : 'Stock you can trust';
+  String get onboarding2Body   => _d ? 'اجناس، بخش‌ها و هشدار موجودی کم را در یک نگاه ببینید.' : 'See products, departments and low-stock alerts at a glance.';
+  String get onboarding3Title  => _d ? 'فروش و گزارش'      : 'Sales and reports';
+  String get onboarding3Body   => _d ? 'فروش را ثبت کنید، تاریخچه را ببینید و گزارش PDF بگیرید.' : 'Record a sale, review history and print a PDF report.';
+  String get onboarding4Title  => _d ? 'پشتیبان در ایمیل'  : 'Backup by email';
+  String get onboarding4Body   => _d ? 'فایل پشتیبان را روزانه، هفتگی یا ماهانه به ایمیل بفرستید.' : 'Send a backup daily, weekly or monthly to an email address.';
+  String get createAccount     => _d ? 'ساخت حساب'         : 'Create account';
+  String get registerSubtitle  => _d ? 'برای شروع، حساب مدیر گدام را بسازید' : 'Create the shop manager account to begin';
+  String get emailOptional     => _d ? 'ایمیل (اختیاری)'   : 'Email (optional)';
+  String get confirmPasswordShort => _d ? 'تأیید رمز عبور' : 'Confirm password';
+  String get invalidLogin      => _d ? 'نام کاربری یا رمز عبور اشتباه است' : 'Wrong username or password';
+  String get passwordTooShort  => _d ? 'رمز عبور حداقل ۶ حرف باشد' : 'Password must be at least 6 characters';
+  String get haveAccount       => _d ? 'حساب دارید؟ داخل شوید' : 'Already have an account? Sign in';
 
   // ── Greetings ────────────────────────────────────────────────────────────
   String get goodMorning       => _d ? 'صبح بخیر،'         : 'Good Morning,';

@@ -5,11 +5,12 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
 import 'core/theme/app_theme.dart';
 import 'core/utils/formatters.dart';
 import 'providers/language_provider.dart';
 import 'providers/theme_provider.dart';
-import 'screens/auth/login_screen.dart';
+import 'screens/auth/auth_gate.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,7 +42,9 @@ class AnbarApp extends ConsumerWidget {
 
       // ── Locale & Direction ───────────────────────────────────────────────
       locale: language?.locale ?? const Locale('fa'),
-      supportedLocales: LanguageNotifier.supported.map((l) => l.locale).toList(),
+      supportedLocales: LanguageNotifier.supported
+          .map((l) => l.locale)
+          .toList(),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -52,7 +55,7 @@ class AnbarApp extends ConsumerWidget {
         child: child!,
       ),
 
-      home: const LoginScreen(),
+      home: const AuthGate(),
     );
   }
 }

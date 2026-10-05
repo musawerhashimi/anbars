@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/app_strings.dart';
+import '../../providers/user_provider.dart';
+import '../../services/user_service.dart';
 import '../../widgets/common/anbar_background.dart';
 import '../app_shell.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -16,8 +19,8 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  final _usernameCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
+  String? _error;
   bool _obscurePassword = true;
   bool _loading = false;
   late AnimationController _animCtrl;
@@ -42,18 +45,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   @override
   void dispose() {
     _animCtrl.dispose();
-    _usernameCtrl.dispose();
     _passwordCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() => _loading = true);
-    // Simulate slight delay for UX feel
-    await Future.delayed(const Duration(milliseconds: 600));
+    final account = ref.read(userProvider).valueOrNull;
+    if (account == null) return;
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    final ok = await ref
+        .read(userProvider.notifier)
+        .login(account.username, _passwordCtrl.text);
     if (!mounted) return;
     setState(() => _loading = false);
+    if (!ok) {
+      setState(() => _error = ref.read(stringsProvider).invalidLogin);
+      return;
+    }
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
@@ -70,7 +82,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final s = ref.watch(stringsProvider);
+    final userAsync = ref.watch(userProvider);
     final size = MediaQuery.of(context).size;
+
+    if (userAsync.isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    final account = userAsync.valueOrNull;
+    if (account == null || UserService().isPlaceholder(account)) {
+      return const RegisterScreen();
+    }
 
     return Scaffold(
       body: Stack(
@@ -207,19 +228,58 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               ),
                               const SizedBox(height: 28),
 
-                              // Username field
-                              TextFormField(
-                                controller: _usernameCtrl,
-                                textInputAction: TextInputAction.next,
-                                decoration: InputDecoration(
-                                  labelText: s.username,
-                                  prefixIcon: const Icon(
-                                    Icons.person_outline_rounded,
-                                  ),
-                                  hintText: 'admin',
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 12,
                                 ),
-                                validator: (v) =>
-                                    v!.trim().isEmpty ? s.required : null,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.08,
+                                  ),
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Row(
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundColor: AppColors.primary,
+                                      child: Text(
+                                        account.username.isEmpty
+                                            ? '?'
+                                            : account.username.characters.first
+                                                  .toUpperCase(),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            account.username,
+                                            style: theme.textTheme.titleMedium
+                                                ?.copyWith(
+                                                  fontWeight: FontWeight.w800,
+                                                ),
+                                          ),
+                                          if (account.email != null &&
+                                              account.email!.isNotEmpty)
+                                            Text(
+                                              account.email!,
+                                              textDirection: TextDirection.ltr,
+                                              style: theme.textTheme.bodySmall,
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
 
                               const SizedBox(height: 16),
@@ -250,7 +310,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 ),
                                 validator: (v) =>
                                     v!.isEmpty ? s.required : null,
+                                onChanged: (_) {
+                                  if (_error != null) {
+                                    setState(() => _error = null);
+                                  }
+                                },
                               ),
+                              if (_error != null) ...[
+                                const SizedBox(height: 10),
+                                Text(
+                                  _error!,
+                                  style: const TextStyle(
+                                    color: AppColors.error,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
 
                               const SizedBox(height: 28),
 
