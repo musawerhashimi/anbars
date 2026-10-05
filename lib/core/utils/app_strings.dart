@@ -159,6 +159,48 @@ class AppStrings {
   String get saleHistoryHint   => _d ? 'تمام فروش‌ها و گزارش اجناس فروخته‌شده' : 'All sales and the sold products report';
   String get logoutConfirm     => _d ? 'آیا مطمئن هستید که می‌خواهید از حساب خارج شوید؟' : 'Are you sure you want to log out?';
 
+  // Backup & restore
+  String get backupRestore     => _d ? 'پشتیبان‌گیری و بازیابی' : 'Backup & Restore';
+  String get emailBackupTitle  => _d ? 'پشتیبان از طریق ایمیل' : 'Email backup';
+  String get emailBackupHint   => _d ? 'فایل پشتیبان به ایمیل مشتری فرستاده می‌شود' : 'The backup file is sent to the customer\'s email';
+  String get backupEmail       => _d ? 'ایمیل مشتری'       : 'Customer email';
+  String get invalidEmail      => _d ? 'یک ایمیل درست وارد کنید' : 'Enter a valid email address';
+  String get sendBackup        => _d ? 'ارسال پشتیبان'     : 'Email backup';
+  String get restoreFromFile   => _d ? 'بازیابی از فایل'   : 'Restore from file';
+  String lastBackup(String t)  => _d ? 'آخرین پشتیبان: $t' : 'Last backup: $t';
+  String get neverBackedUp     => _d ? 'هنوز پشتیبانی گرفته نشده است' : 'No backup yet';
+  String get preparingBackup   => _d ? 'در حال آماده‌سازی...' : 'Preparing...';
+  String get restoring         => _d ? 'در حال بازیابی...'  : 'Restoring...';
+  String get backupFailed      => _d ? 'پشتیبان‌گیری ناموفق بود' : 'Backup failed';
+  String get restore           => _d ? 'بازیابی'           : 'Restore';
+  String get restoreConfirm    => _d ? 'تمام داده‌های فعلی با این پشتیبان جایگزین می‌شوند. ادامه می‌دهید؟' : 'All current data will be replaced by this backup. Continue?';
+  String get restoreSuccess    => _d ? 'داده‌ها با موفقیت بازیابی شدند' : 'Data restored successfully';
+  String get restoreFailed     => _d ? 'بازیابی ناموفق بود' : 'Restore failed';
+  String get invalidBackup     => _d ? 'این فایل پشتیبان معتبر انبار نیست' : 'This file is not a valid Anbar backup';
+  String backupEmailSubject(String date) => _d ? 'پشتیبان انبار - $date' : 'Anbar backup - $date';
+  String get backupEmailBody   => _d
+      ? 'فایل پشتیبان اپلیکیشن انبار ضمیمه شده است.\nبرای بازیابی، فایل را دانلود کنید و در تنظیمات گزینه «بازیابی از فایل» را بزنید.'
+      : 'Your Anbar app backup is attached.\nTo restore, download the file and tap "Restore from file" in Settings.';
+  String get autoBackup        => _d ? 'پشتیبان‌گیری خودکار' : 'Automatic backup';
+  String get autoBackupHint    => _d ? 'وقتی زمان پشتیبان برسد، اپ فایل را آماده کرده و ایمیل را برای ارسال باز می‌کند.' : 'When a backup is due, the app prepares the file and opens your email to send it.';
+  String get frequencyOff      => _d ? 'خاموش'             : 'Off';
+  String get frequencyDaily    => _d ? 'روزانه'            : 'Daily';
+  String get frequencyWeekly   => _d ? 'هفتگی'             : 'Weekly';
+  String get frequencyMonthly  => _d ? 'ماهانه'            : 'Monthly';
+  String nextBackup(String t)  => _d ? 'پشتیبان بعدی: $t'  : 'Next backup: $t';
+  String get backupDueNow      => _d ? 'پشتیبان بعدی: همین حالا' : 'Next backup: now';
+  String get backupDueTitle    => _d ? 'وقت پشتیبان‌گیری است' : 'Time to back up';
+  String backupDueMessage(String freq) => _d
+      ? 'پشتیبان $freq شما آماده است و به این ایمیل فرستاده می‌شود:'
+      : 'Your ${freq.toLowerCase()} backup is ready to be sent to:';
+  String backupDueNoEmail(String freq) => _d
+      ? 'زمان پشتیبان $freq شما رسیده است. برای ارسال، ایمیل مشتری را در تنظیمات وارد کنید.'
+      : 'Your ${freq.toLowerCase()} backup is due. Add the customer email in Settings to send it.';
+  String get sendNow           => _d ? 'ارسال حالا'        : 'Send now';
+  String get later             => _d ? 'بعداً'             : 'Later';
+  String get openSettings      => _d ? 'رفتن به تنظیمات'   : 'Open Settings';
+  String get restoreHowTo      => _d ? 'برای بازیابی، فایل ضمیمه را از ایمیل دانلود کنید و «بازیابی از فایل» را بزنید.' : 'To restore, download the attached file from the email and tap "Restore from file".';
+
   // ── Master Data Screen ────────────────────────────────────────────────────
   String get noUnitsYet        => _d ? 'هنوز واحدی وجود ندارد'      : 'No units yet';
   String get noCategoriesYet   => _d ? 'هنوز کتگوری‌ای وجود ندارد' : 'No categories yet';

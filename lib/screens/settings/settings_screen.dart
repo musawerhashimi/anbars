@@ -17,9 +17,11 @@ import '../../providers/user_provider.dart';
 import '../../providers/vendor_provider.dart';
 import '../../widgets/common/anbar_app_bar.dart';
 import '../../widgets/common/confirm_dialog.dart';
+import '../../widgets/common/segmented_picker.dart';
 import '../../widgets/common/soft_card.dart';
 import '../auth/login_screen.dart';
 import '../sales/sale_history_screen.dart';
+import 'backup_section.dart';
 import 'master_data_screen.dart';
 import 'profile_sheet.dart';
 
@@ -95,21 +97,21 @@ class SettingsScreen extends ConsumerWidget {
                   title: s.theme,
                 ),
                 const SizedBox(height: 12),
-                _SegmentedPicker<ThemeMode>(
+                SegmentedPicker<ThemeMode>(
                   value: themeMode,
                   onChanged: (m) => ref.read(themeProvider.notifier).setMode(m),
                   options: [
-                    _Option(
+                    SegmentOption(
                       ThemeMode.light,
                       s.themeLight,
                       Icons.light_mode_rounded,
                     ),
-                    _Option(
+                    SegmentOption(
                       ThemeMode.dark,
                       s.themeDark,
                       Icons.dark_mode_rounded,
                     ),
-                    _Option(
+                    SegmentOption(
                       ThemeMode.system,
                       s.themeSystem,
                       Icons.brightness_auto_rounded,
@@ -126,7 +128,7 @@ class SettingsScreen extends ConsumerWidget {
                   title: s.language,
                 ),
                 const SizedBox(height: 12),
-                _SegmentedPicker<String>(
+                SegmentedPicker<String>(
                   value: language?.code ?? 'fa',
                   onChanged: (code) => ref
                       .read(languageProvider.notifier)
@@ -137,7 +139,7 @@ class SettingsScreen extends ConsumerWidget {
                       ),
                   options: [
                     for (final lang in LanguageNotifier.supported)
-                      _Option(lang.code, lang.nativeLabel, null),
+                      SegmentOption(lang.code, lang.nativeLabel, null),
                   ],
                 ),
               ],
@@ -216,6 +218,10 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
+
+          // ── Backup & restore ───────────────────────────────────────────
+          _SectionLabel(s.backupRestore),
+          const BackupSection(),
 
           // ── About ──────────────────────────────────────────────────────
           _SectionLabel(s.about),
@@ -581,99 +587,6 @@ class _GroupTile extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _Option<T> {
-  final T value;
-  final String label;
-  final IconData? icon;
-  const _Option(this.value, this.label, this.icon);
-}
-
-class _SegmentedPicker<T> extends StatelessWidget {
-  final T value;
-  final List<_Option<T>> options;
-  final ValueChanged<T> onChanged;
-
-  const _SegmentedPicker({
-    required this.value,
-    required this.options,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          for (final o in options)
-            Expanded(
-              child: GestureDetector(
-                onTap: () => onChanged(o.value),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 220),
-                  curve: Curves.easeOut,
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    color: o.value == value
-                        ? (isDark ? AppColors.darkBorder : Colors.white)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(11),
-                    boxShadow: o.value == value && !isDark
-                        ? [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.06),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ]
-                        : null,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (o.icon != null) ...[
-                        Icon(
-                          o.icon,
-                          size: 18,
-                          color: o.value == value
-                              ? AppColors.primary
-                              : theme.colorScheme.onSurfaceVariant,
-                        ),
-                        const SizedBox(width: 6),
-                      ],
-                      Flexible(
-                        child: Text(
-                          o.label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.labelLarge?.copyWith(
-                            color: o.value == value
-                                ? AppColors.primary
-                                : theme.colorScheme.onSurfaceVariant,
-                            fontWeight: o.value == value
-                                ? FontWeight.w700
-                                : FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-        ],
       ),
     );
   }

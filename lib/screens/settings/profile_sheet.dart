@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/app_strings.dart';
 import '../../providers/user_provider.dart';
@@ -41,7 +42,9 @@ class _ProfileSheetState extends ConsumerState<ProfileSheet> {
   Future<void> _saveUsername(AppStrings s) async {
     if (_usernameCtrl.text.trim().isEmpty) return;
     setState(() => _loadingUsername = true);
-    final ok = await ref.read(userProvider.notifier).updateUsername(_usernameCtrl.text.trim());
+    final ok = await ref
+        .read(userProvider.notifier)
+        .updateUsername(_usernameCtrl.text.trim());
     if (!mounted) return;
     setState(() => _loadingUsername = false);
     _showSnack(ok ? s.usernameUpdated : s.usernameUpdateFailed, ok);
@@ -50,7 +53,9 @@ class _ProfileSheetState extends ConsumerState<ProfileSheet> {
   Future<void> _changePassword(AppStrings s) async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loadingPassword = true);
-    final ok = await ref.read(userProvider.notifier).changePassword(_currentPwCtrl.text, _newPwCtrl.text);
+    final ok = await ref
+        .read(userProvider.notifier)
+        .changePassword(_currentPwCtrl.text, _newPwCtrl.text);
     if (!mounted) return;
     setState(() => _loadingPassword = false);
     if (ok) {
@@ -62,10 +67,12 @@ class _ProfileSheetState extends ConsumerState<ProfileSheet> {
   }
 
   void _showSnack(String msg, bool success) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(msg),
-      backgroundColor: success ? AppColors.success : AppColors.error,
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        backgroundColor: success ? AppColors.success : AppColors.error,
+      ),
+    );
   }
 
   @override
@@ -74,7 +81,9 @@ class _ProfileSheetState extends ConsumerState<ProfileSheet> {
     final s = ref.watch(stringsProvider);
 
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
       child: DraggableScrollableSheet(
         expand: false,
         initialChildSize: 0.75,
@@ -84,7 +93,8 @@ class _ProfileSheetState extends ConsumerState<ProfileSheet> {
             Center(
               child: Container(
                 margin: const EdgeInsets.only(top: 12, bottom: 8),
-                width: 40, height: 4,
+                width: 40,
+                height: 4,
                 decoration: BoxDecoration(
                   color: theme.colorScheme.outlineVariant,
                   borderRadius: BorderRadius.circular(2),
@@ -97,7 +107,10 @@ class _ProfileSheetState extends ConsumerState<ProfileSheet> {
                 children: [
                   Text(s.editProfile, style: theme.textTheme.headlineMedium),
                   const Spacer(),
-                  IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.pop(context)),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded),
+                    onPressed: () => Navigator.pop(context),
+                  ),
                 ],
               ),
             ),
@@ -116,16 +129,26 @@ class _ProfileSheetState extends ConsumerState<ProfileSheet> {
                           controller: _usernameCtrl,
                           decoration: InputDecoration(
                             labelText: s.username,
-                            prefixIcon: const Icon(Icons.person_outline_rounded),
+                            prefixIcon: const Icon(
+                              Icons.person_outline_rounded,
+                            ),
                           ),
                         ),
                       ),
                       const SizedBox(width: 10),
                       ElevatedButton(
-                        onPressed: _loadingUsername ? null : () => _saveUsername(s),
+                        onPressed: _loadingUsername
+                            ? null
+                            : () => _saveUsername(s),
                         child: _loadingUsername
-                            ? const SizedBox(width: 18, height: 18,
-                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
                             : Text(s.save),
                       ),
                     ],
@@ -141,7 +164,9 @@ class _ProfileSheetState extends ConsumerState<ProfileSheet> {
                           ctrl: _currentPwCtrl,
                           label: s.currentPassword,
                           obscure: _obscureCurrent,
-                          onToggle: () => setState(() => _obscureCurrent = !_obscureCurrent),
+                          onToggle: () => setState(
+                            () => _obscureCurrent = !_obscureCurrent,
+                          ),
                           validator: (v) => v!.isEmpty ? s.required : null,
                         ),
                         const SizedBox(height: 12),
@@ -149,7 +174,8 @@ class _ProfileSheetState extends ConsumerState<ProfileSheet> {
                           ctrl: _newPwCtrl,
                           label: s.newPassword,
                           obscure: _obscureNew,
-                          onToggle: () => setState(() => _obscureNew = !_obscureNew),
+                          onToggle: () =>
+                              setState(() => _obscureNew = !_obscureNew),
                           validator: (v) {
                             if (v!.isEmpty) return s.required;
                             if (v.length < 6) return s.minSixChars;
@@ -161,7 +187,9 @@ class _ProfileSheetState extends ConsumerState<ProfileSheet> {
                           ctrl: _confirmPwCtrl,
                           label: s.confirmPassword,
                           obscure: _obscureConfirm,
-                          onToggle: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                          onToggle: () => setState(
+                            () => _obscureConfirm = !_obscureConfirm,
+                          ),
                           validator: (v) {
                             if (v!.isEmpty) return s.required;
                             if (v != _newPwCtrl.text) return s.passwordMismatch;
@@ -170,11 +198,21 @@ class _ProfileSheetState extends ConsumerState<ProfileSheet> {
                         ),
                         const SizedBox(height: 16),
                         ElevatedButton(
-                          onPressed: _loadingPassword ? null : () => _changePassword(s),
-                          style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                          onPressed: _loadingPassword
+                              ? null
+                              : () => _changePassword(s),
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(48),
+                          ),
                           child: _loadingPassword
-                              ? const SizedBox(width: 20, height: 20,
-                                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
                               : Text(s.changePassword),
                         ),
                       ],
@@ -215,7 +253,9 @@ class _PwField extends StatelessWidget {
         labelText: label,
         prefixIcon: const Icon(Icons.lock_outline_rounded),
         suffixIcon: IconButton(
-          icon: Icon(obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+          icon: Icon(
+            obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+          ),
           onPressed: onToggle,
         ),
       ),

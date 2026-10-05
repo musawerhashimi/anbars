@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -12,9 +14,55 @@ class DatabaseHelper {
     return _database!;
   }
 
+  static const _fileName = 'anbar_inventory.db';
+
+  Future<String> get databasePath async =>
+      join(await getDatabasesPath(), _fileName);
+
+  /// Closes the database and copies its file to [target] so the backup is a
+  /// consistent snapshot. The database reopens lazily on next use.
+  Future<File> exportTo(String target) async {
+    await closeDatabase();
+    return File(await databasePath).copy(target);
+  }
+
+  /// Replaces the live database with [backup] after checking that it is an
+  /// Anbar database, then reopens it (running migrations for older backups).
+  Future<void> importFrom(File backup) async {
+    if (!await _isAnbarDatabase(backup)) {
+      throw const FormatException('Not an Anbar backup');
+    }
+    await closeDatabase();
+    final path = await databasePath;
+    for (final suffix in const ['-wal', '-shm', '-journal']) {
+      final f = File('$path$suffix');
+      if (await f.exists()) await f.delete();
+    }
+    await backup.copy(path);
+    await database;
+  }
+
+  Future<bool> _isAnbarDatabase(File file) async {
+    final header = await file
+        .openRead(0, 16)
+        .fold<List<int>>([], (acc, chunk) => acc..addAll(chunk));
+    if (String.fromCharCodes(header.take(15)) != 'SQLite format 3') {
+      return false;
+    }
+    final db = await openDatabase(file.path, readOnly: true);
+    try {
+      final tables = await db.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type = 'table' "
+        "AND name IN ('products', 'sales', 'app_settings')",
+      );
+      return tables.length == 3;
+    } finally {
+      await db.close();
+    }
+  }
+
   Future<Database> _initDatabase() async {
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'anbar_inventory.db');
+    final path = await databasePath;
 
     return await openDatabase(
       path,
@@ -152,12 +200,18 @@ class DatabaseHelper {
   }
 
   Future<void> _createIndexes(Database db) async {
-    await db.execute('CREATE INDEX idx_products_category ON products(category_id)');
-    await db.execute('CREATE INDEX idx_products_department ON products(department_id)');
+    await db.execute(
+      'CREATE INDEX idx_products_category ON products(category_id)',
+    );
+    await db.execute(
+      'CREATE INDEX idx_products_department ON products(department_id)',
+    );
     await db.execute('CREATE INDEX idx_products_vendor ON products(vendor_id)');
     await db.execute('CREATE INDEX idx_products_unit ON products(unit_id)');
     await db.execute('CREATE INDEX idx_sale_items_sale ON sale_items(sale_id)');
-    await db.execute('CREATE INDEX idx_sale_items_product ON sale_items(product_id)');
+    await db.execute(
+      'CREATE INDEX idx_sale_items_product ON sale_items(product_id)',
+    );
     await db.execute('CREATE INDEX idx_sales_created_at ON sales(created_at)');
   }
 
@@ -194,7 +248,13 @@ class DatabaseHelper {
     }
 
     // Seed departments
-    final departments = ['گدام الف', 'گدام ب', 'سردخانه', 'نمایشگاه', 'برگشتی‌ها'];
+    final departments = [
+      'گدام الف',
+      'گدام ب',
+      'سردخانه',
+      'نمایشگاه',
+      'برگشتی‌ها',
+    ];
     for (final d in departments) {
       await db.insert('departments', {'name': d});
     }
@@ -375,15 +435,28 @@ class DatabaseHelper {
 
   Future<int> insert(String table, Map<String, dynamic> row) async {
     final db = await database;
-    return await db.insert(table, row, conflictAlgorithm: ConflictAlgorithm.replace);
+    return await db.insert(
+      table,
+      row,
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
-  Future<int> update(String table, Map<String, dynamic> row, String where, List<dynamic> whereArgs) async {
+  Future<int> update(
+    String table,
+    Map<String, dynamic> row,
+    String where,
+    List<dynamic> whereArgs,
+  ) async {
     final db = await database;
     return await db.update(table, row, where: where, whereArgs: whereArgs);
   }
 
-  Future<int> delete(String table, String where, List<dynamic> whereArgs) async {
+  Future<int> delete(
+    String table,
+    String where,
+    List<dynamic> whereArgs,
+  ) async {
     final db = await database;
     return await db.delete(table, where: where, whereArgs: whereArgs);
   }
@@ -395,10 +468,18 @@ class DatabaseHelper {
     String? orderBy,
   }) async {
     final db = await database;
-    return await db.query(table, where: where, whereArgs: whereArgs, orderBy: orderBy);
+    return await db.query(
+      table,
+      where: where,
+      whereArgs: whereArgs,
+      orderBy: orderBy,
+    );
   }
 
-  Future<List<Map<String, dynamic>>> rawQuery(String sql, [List<dynamic>? args]) async {
+  Future<List<Map<String, dynamic>>> rawQuery(
+    String sql, [
+    List<dynamic>? args,
+  ]) async {
     final db = await database;
     return await db.rawQuery(sql, args);
   }

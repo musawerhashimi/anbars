@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../core/utils/app_strings.dart';
+import '../providers/backup_provider.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/product_provider.dart';
 import '../widgets/common/anbar_bottom_nav.dart';
 import 'home/home_screen.dart';
 import 'sales/sales_screen.dart';
+import 'settings/backup_due_sheet.dart';
 import 'warehouse/warehouse_screen.dart';
 import 'settings/settings_screen.dart';
 
-
-
-class AppShell extends ConsumerWidget {
+class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});
 
+  @override
+  ConsumerState<AppShell> createState() => _AppShellState();
+}
+
+class _AppShellState extends ConsumerState<AppShell>
+    with WidgetsBindingObserver {
   static const _screens = [
     HomeScreen(),
     SalesScreen(),
@@ -21,8 +28,42 @@ class AppShell extends ConsumerWidget {
     SettingsScreen(),
   ];
 
+  bool _promptingBackup = false;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkBackupDue());
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _checkBackupDue();
+  }
+
+  Future<void> _checkBackupDue() async {
+    final notifier = ref.read(backupProvider.notifier);
+    if (_promptingBackup || notifier.busy) return;
+    final backup = await ref.read(backupProvider.future);
+    if (!backup.isDue || !mounted || _promptingBackup) return;
+
+    _promptingBackup = true;
+    await showBackupDueSheet(context);
+    _promptingBackup = false;
+    if (ref.read(backupProvider).valueOrNull?.isDue ?? false) {
+      await notifier.snooze();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final currentTab = ref.watch(currentTabProvider);
     final lowStock = ref.watch(lowStockCountProvider);
     final s = ref.watch(stringsProvider);
