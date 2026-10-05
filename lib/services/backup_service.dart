@@ -38,20 +38,32 @@ class BackupService {
     required String body,
   }) async {
     final file = await createBackupFile();
+    final message = '$body\n\n$email';
     try {
-      await FlutterEmailSender.send(
-        Email(
-          recipients: [email],
-          subject: subject,
-          body: body,
-          attachmentPaths: [file.path],
-        ),
-      );
+      final caps = await FlutterEmailSender.getCapabilities();
+      if (caps.canSend) {
+        await FlutterEmailSender.send(
+          Email(
+            recipients: [email],
+            subject: subject,
+            body: body,
+            attachmentPaths: caps.supportsAttachments ? [file.path] : null,
+          ),
+        );
+        return;
+      }
+    } on FlutterEmailSenderException {
+      // No mail app, or the phone blocked the query — use the share sheet.
     } on PlatformException {
-      await SharePlus.instance.share(
-        ShareParams(files: [XFile(file.path)], subject: subject, text: body),
-      );
+      // Older plugin / unexpected platform error.
     }
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(file.path, name: p.basename(file.path))],
+        subject: subject,
+        text: message,
+      ),
+    );
   }
 
   /// Lets the user choose a backup file. Returns null if they cancel.
