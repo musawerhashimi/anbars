@@ -23,4 +23,11 @@ class Formatters {
   static String longDate(DateTime date) =>
       DateFormat.MMMMEEEEd(locale).format(date);
   static String month(DateTime date) => DateFormat.MMM(locale).format(date);
+  static String number(num value) =>
+      NumberFormat.decimalPattern(locale).format(value);
+  static String time(DateTime date) => DateFormat.jm(locale).format(date);
+  static String weekdayShort(DateTime date) =>
+      DateFormat.E(locale).format(date);
+  static String dayMonth(DateTime date) =>
+      DateFormat.MMMEd(locale).format(date);
 }

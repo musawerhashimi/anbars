@@ -37,6 +37,28 @@ class AppStrings {
   String get transactionsToday => _d ? 'معاملات امروز'      : 'Transactions Today';
   String get alert             => _d ? 'هشدار'              : 'Alert';
   String get good              => _d ? 'خوب'                : 'Good';
+  String get quickActions      => _d ? 'دسترسی سریع'       : 'Quick Actions';
+  String get newSale           => _d ? 'فروش جدید'         : 'New Sale';
+  String get last7Days         => _d ? 'هفت روز گذشته'      : 'Last 7 days';
+  String get vsYesterday       => _d ? 'نسبت به دیروز'      : 'vs yesterday';
+  String lowStockBanner(String n) => _d ? '$n جنس موجودی کم دارد' : '$n products are running low';
+  String get tapToReview       => _d ? 'برای بررسی بزنید'   : 'Tap to review';
+
+  // ── Sale History ─────────────────────────────────────────────────────────
+  String get saleHistory       => _d ? 'تاریخچه فروش'      : 'Sale History';
+  String get recentSales       => _d ? 'فروش‌های اخیر'      : 'Recent Sales';
+  String get seeAll            => _d ? 'مشاهده همه'        : 'See all';
+  String get saleDetails       => _d ? 'جزئیات فروش'       : 'Sale Details';
+  String saleNumber(String id) => _d ? 'فروش #$id'         : 'Sale #$id';
+  String itemsCount(String n)  => _d ? '$n قلم'            : '$n items';
+  String salesCount(String n)  => _d ? '$n فروش'           : '$n sales';
+  String get today             => _d ? 'امروز'             : 'Today';
+  String get yesterday         => _d ? 'دیروز'             : 'Yesterday';
+  String get thisWeek          => _d ? 'این هفته'          : 'This Week';
+  String get noSalesYet        => _d ? 'هنوز فروشی ثبت نشده' : 'No sales yet';
+  String get noSalesHint       => _d ? 'فروش‌های تکمیل‌شده اینجا نمایش داده می‌شوند.' : 'Completed sales will appear here.';
+  String get noSalesInPeriod   => _d ? 'در این مدت فروشی نیست' : 'No sales in this period';
+  String get items             => _d ? 'اقلام'             : 'Items';
 
   // ── Bottom Nav ───────────────────────────────────────────────────────────
   String get navHome           => _d ? 'خانه'              : 'Home';
