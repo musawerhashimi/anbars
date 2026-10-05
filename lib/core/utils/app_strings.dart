@@ -60,6 +60,16 @@ class AppStrings {
   String get noSalesInPeriod   => _d ? 'در این مدت فروشی نیست' : 'No sales in this period';
   String get items             => _d ? 'اقلام'             : 'Items';
 
+  // ── Sold Products Report ─────────────────────────────────────────────────
+  String get soldProductsReport => _d ? 'گزارش اجناس فروخته‌شده' : 'Sold Products Report';
+  String get soldProductsReportHint => _d ? 'فهرست تمام اجناس فروخته‌شده با مجموع کل' : 'All sold products with the grand total';
+  String get printReport       => _d ? 'چاپ گزارش'         : 'Print Report';
+  String period(String label)  => _d ? 'دوره: $label'      : 'Period: $label';
+  String get qtySold           => _d ? 'تعداد فروخته‌شده'   : 'Qty Sold';
+  String get unitPrice         => _d ? 'قیمت واحد'         : 'Unit Price';
+  String get grandTotal        => _d ? 'مجموع کل'          : 'Grand Total';
+  String get noSalesToReport   => _d ? 'برای این دوره فروشی برای گزارش وجود ندارد.' : 'No sales to report for this period.';
+
   // ── Bottom Nav ───────────────────────────────────────────────────────────
   String get navHome           => _d ? 'خانه'              : 'Home';
   String get navSales          => _d ? 'فروش'              : 'Sales';
@@ -82,6 +92,7 @@ class AppStrings {
   // ── Warehouse Screen ──────────────────────────────────────────────────────
   String get warehouse         => _d ? 'گدام'              : 'Warehouse';
   String get exportPdf         => _d ? 'خروجی PDF'         : 'Export PDF';
+  String get warehouseReport   => _d ? 'گزارش گدام'        : 'Warehouse Report';
   String get noMatchingProducts => _d ? 'هیچ جنسی پیدا نشد' : 'No matching products';
   String get noProductsYet     => _d ? 'هنوز جنسی وجود ندارد' : 'No products yet';
   String get tryClearingFilters => _d ? 'فیلترها را پاک کنید.' : 'Try clearing filters.';
@@ -89,7 +100,7 @@ class AppStrings {
   String get clearFilters      => _d ? 'پاک کردن فیلترها'  : 'Clear Filters';
   String get clearAll          => _d ? 'پاک کردن همه'      : 'Clear all';
   String get category          => _d ? 'کتگوری'            : 'Category';
-  String get department        => _d ? 'بخش'               : 'Department';
+  String get department        => _d ? 'بخش / گدام'        : 'Department / Warehouse';
   String get vendor            => _d ? 'فروشنده'            : 'Vendor';
   String get all               => _d ? 'همه'               : 'All';
   String get addProduct        => _d ? 'افزودن جنس'        : 'Add Product';
@@ -134,12 +145,24 @@ class AppStrings {
   String get units             => _d ? 'واحدها'            : 'Units';
   String get about             => _d ? 'درباره'             : 'About';
   String get appVersion        => _d ? 'نسخه برنامه'        : 'App Version';
-  String get departments       => _d ? 'بخش‌ها'             : 'Departments';
+  String get departments       => _d ? 'بخش‌ها / گدام‌ها'    : 'Departments / Warehouses';
+  String get account           => _d ? 'حساب کاربری'        : 'Account';
+  String get theme             => _d ? 'پوسته'              : 'Theme';
+  String get themeLight        => _d ? 'روشن'               : 'Light';
+  String get themeDark         => _d ? 'تاریک'              : 'Dark';
+  String get themeSystem       => _d ? 'سیستم'              : 'System';
+  String get reports           => _d ? 'گزارش‌ها'            : 'Reports';
+  String get productsShort     => _d ? 'اجناس'              : 'Products';
+  String get salesShort        => _d ? 'فروش‌ها'             : 'Sales';
+  String recordsCount(String n) => _d ? '$n مورد'          : '$n items';
+  String get usernameAndPassword => _d ? 'نام کاربری، ایمیل و رمز عبور' : 'Username, email and password';
+  String get saleHistoryHint   => _d ? 'تمام فروش‌ها و گزارش اجناس فروخته‌شده' : 'All sales and the sold products report';
+  String get logoutConfirm     => _d ? 'آیا مطمئن هستید که می‌خواهید از حساب خارج شوید؟' : 'Are you sure you want to log out?';
 
   // ── Master Data Screen ────────────────────────────────────────────────────
   String get noUnitsYet        => _d ? 'هنوز واحدی وجود ندارد'      : 'No units yet';
   String get noCategoriesYet   => _d ? 'هنوز کتگوری‌ای وجود ندارد' : 'No categories yet';
-  String get noDepartmentsYet  => _d ? 'هنوز بخشی وجود ندارد'       : 'No departments yet';
+  String get noDepartmentsYet  => _d ? 'هنوز بخش یا گدامی وجود ندارد' : 'No departments or warehouses yet';
   String get noVendorsYet      => _d ? 'هنوز فروشنده‌ای وجود ندارد' : 'No vendors yet';
   String get edit              => _d ? 'ویرایش'            : 'Edit';
   String get delete            => _d ? 'حذف'               : 'Delete';

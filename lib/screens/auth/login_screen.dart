@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/app_strings.dart';
+import '../../widgets/common/anbar_background.dart';
 import '../app_shell.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -56,7 +57,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondary) => const AppShell(),
+        pageBuilder: (context, animation, secondary) =>
+            const AnbarBackground(child: AppShell()),
         transitionsBuilder: (context, animation, secondary, child) =>
             FadeTransition(opacity: animation, child: child),
         transitionDuration: const Duration(milliseconds: 400),

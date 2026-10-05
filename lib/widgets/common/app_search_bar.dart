@@ -44,7 +44,10 @@ class _AppSearchBarState extends State<AppSearchBar> {
                 },
               )
             : null,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
       ),
       style: theme.textTheme.bodyMedium,
     );

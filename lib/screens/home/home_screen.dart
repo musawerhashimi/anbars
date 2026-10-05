@@ -372,6 +372,7 @@ class _WeekBars extends StatelessWidget {
   const _WeekBars({required this.values});
 
   static const _maxBarHeight = 52.0;
+  static const _barWidth = 12.0;
 
   @override
   Widget build(BuildContext context) {
@@ -384,21 +385,54 @@ class _WeekBars extends StatelessWidget {
         for (var i = 0; i < values.length; i++)
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 2),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeOutCubic,
-                    height: peak == 0
-                        ? 4
-                        : math.max(4, values[i] / peak * _maxBarHeight),
+                  SizedBox(
+                    height: 14,
+                    child: values[i] > 0
+                        ? FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              Formatters.compact(values[i]),
+                              maxLines: 1,
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white.withValues(
+                                  alpha: i == values.length - 1 ? 1 : 0.85,
+                                ),
+                              ),
+                            ),
+                          )
+                        : null,
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    width: _barWidth,
+                    height: _maxBarHeight,
+                    alignment: Alignment.bottomCenter,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(
-                        alpha: i == values.length - 1 ? 1 : 0.35,
+                      color: Colors.white.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(_barWidth / 2),
+                    ),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeOutCubic,
+                      width: _barWidth,
+                      height: peak == 0
+                          ? 0
+                          : math.max(
+                              _barWidth,
+                              values[i] / peak * _maxBarHeight,
+                            ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(
+                          alpha: i == values.length - 1 ? 1 : 0.6,
+                        ),
+                        borderRadius: BorderRadius.circular(_barWidth / 2),
                       ),
-                      borderRadius: BorderRadius.circular(6),
                     ),
                   ),
                   const SizedBox(height: 6),

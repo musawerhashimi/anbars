@@ -32,10 +32,18 @@ class EmptyState extends StatelessWidget {
                 color: theme.colorScheme.surfaceContainerHighest,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 36, color: theme.colorScheme.onSurfaceVariant),
+              child: Icon(
+                icon,
+                size: 36,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 20),
-            Text(title, style: theme.textTheme.headlineSmall, textAlign: TextAlign.center),
+            Text(
+              title,
+              style: theme.textTheme.headlineSmall,
+              textAlign: TextAlign.center,
+            ),
             if (subtitle != null) ...[
               const SizedBox(height: 8),
               Text(

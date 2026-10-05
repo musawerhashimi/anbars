@@ -1,5 +1,7 @@
 import '../core/database/database_helper.dart';
 import '../models/sale_model.dart';
+import '../models/sold_product_model.dart';
+
 class SaleService {
   final _db = DatabaseHelper.instance;
 
@@ -49,8 +51,19 @@ class SaleService {
 
   Future<List<SaleModel>> getSalesToday() async {
     final today = DateTime.now();
-    final start = DateTime(today.year, today.month, today.day).toIso8601String();
-    final end = DateTime(today.year, today.month, today.day, 23, 59, 59).toIso8601String();
+    final start = DateTime(
+      today.year,
+      today.month,
+      today.day,
+    ).toIso8601String();
+    final end = DateTime(
+      today.year,
+      today.month,
+      today.day,
+      23,
+      59,
+      59,
+    ).toIso8601String();
     final rows = await _db.rawQuery(
       "SELECT * FROM sales WHERE created_at BETWEEN ? AND ? ORDER BY created_at DESC",
       [start, end],
@@ -61,7 +74,14 @@ class SaleService {
   Future<List<SaleModel>> getSalesThisMonth() async {
     final now = DateTime.now();
     final start = DateTime(now.year, now.month, 1).toIso8601String();
-    final end = DateTime(now.year, now.month + 1, 0, 23, 59, 59).toIso8601String();
+    final end = DateTime(
+      now.year,
+      now.month + 1,
+      0,
+      23,
+      59,
+      59,
+    ).toIso8601String();
     final rows = await _db.rawQuery(
       "SELECT * FROM sales WHERE created_at BETWEEN ? AND ? ORDER BY created_at DESC",
       [start, end],
@@ -70,13 +90,39 @@ class SaleService {
   }
 
   Future<List<SaleItemModel>> getItemsForSale(int saleId) async {
-    final rows = await _db.rawQuery('''
+    final rows = await _db.rawQuery(
+      '''
       SELECT si.*, p.name AS product_name
       FROM sale_items si
       JOIN products p ON si.product_id = p.id
       WHERE si.sale_id = ?
-    ''', [saleId]);
+    ''',
+      [saleId],
+    );
     return rows.map(SaleItemModel.fromMap).toList();
+  }
+
+  /// Every product sold since [from] (all time when null), best sellers first.
+  Future<List<SoldProductModel>> getSoldProducts({DateTime? from}) async {
+    final rows = await _db.rawQuery(
+      '''
+      SELECT si.product_id,
+             p.name AS product_name,
+             u.name AS unit_name,
+             SUM(si.quantity) AS qty,
+             SUM(si.quantity * si.price) AS total,
+             COUNT(DISTINCT si.sale_id) AS sale_count
+      FROM sale_items si
+      JOIN sales s ON s.id = si.sale_id
+      LEFT JOIN products p ON p.id = si.product_id
+      LEFT JOIN units u ON u.id = p.unit_id
+      ${from != null ? 'WHERE s.created_at >= ?' : ''}
+      GROUP BY si.product_id
+      ORDER BY total DESC
+    ''',
+      [if (from != null) from.toIso8601String()],
+    );
+    return rows.map(SoldProductModel.fromMap).toList();
   }
 
   Future<double> getTotalSalesToday() async {

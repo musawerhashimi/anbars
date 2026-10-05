@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../widgets/common/anbar_background.dart';
 import 'app_colors.dart';
 
 class AppTheme {
@@ -71,15 +73,35 @@ class AppTheme {
       fontFamily: fontFamily,
       fontFamilyFallback: fontFallback,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: isDark
-          ? AppColors.darkBackground
-          : AppColors.lightBackground,
+      // Pages paint AnbarBackground behind transparent scaffolds.
+      scaffoldBackgroundColor: Colors.transparent,
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: AnbarPageTransitionsBuilder(
+            ZoomPageTransitionsBuilder(),
+          ),
+          TargetPlatform.fuchsia: AnbarPageTransitionsBuilder(
+            ZoomPageTransitionsBuilder(),
+          ),
+          TargetPlatform.linux: AnbarPageTransitionsBuilder(
+            ZoomPageTransitionsBuilder(),
+          ),
+          TargetPlatform.windows: AnbarPageTransitionsBuilder(
+            ZoomPageTransitionsBuilder(),
+          ),
+          TargetPlatform.iOS: AnbarPageTransitionsBuilder(
+            CupertinoPageTransitionsBuilder(),
+          ),
+          TargetPlatform.macOS: AnbarPageTransitionsBuilder(
+            CupertinoPageTransitionsBuilder(),
+          ),
+        },
+      ),
 
       // ── AppBar ──────────────────────────────────────────────────────────────
       appBarTheme: AppBarTheme(
-        backgroundColor: isDark
-            ? AppColors.darkBackground
-            : AppColors.lightBackground,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
         foregroundColor: isDark
             ? AppColors.darkTextPrimary
             : AppColors.lightTextPrimary,

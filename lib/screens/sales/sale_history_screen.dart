@@ -4,10 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/app_strings.dart';
 import '../../core/utils/formatters.dart';
+import '../../core/utils/pdf_builder.dart';
 import '../../models/sale_model.dart';
 import '../../providers/sale_provider.dart';
 import '../../widgets/common/anbar_app_bar.dart';
 import '../../widgets/common/empty_state.dart';
+import '../../widgets/common/gradient_pill_button.dart';
 import '../../widgets/common/soft_card.dart';
 import '../../widgets/sale/sale_tile.dart';
 import 'sale_detail_sheet.dart';
@@ -24,17 +26,22 @@ class SaleHistoryScreen extends ConsumerStatefulWidget {
 class _SaleHistoryScreenState extends ConsumerState<SaleHistoryScreen> {
   _Period _period = _Period.all;
 
-  bool _inPeriod(SaleModel sale) {
-    final d = sale.date;
-    if (d == null) return _period == _Period.all;
+  DateTime? _periodStart() {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     return switch (_period) {
-      _Period.all => true,
-      _Period.today => !d.isBefore(today),
-      _Period.week => !d.isBefore(today.subtract(const Duration(days: 6))),
-      _Period.month => d.year == now.year && d.month == now.month,
+      _Period.all => null,
+      _Period.today => today,
+      _Period.week => today.subtract(const Duration(days: 6)),
+      _Period.month => DateTime(now.year, now.month),
     };
+  }
+
+  bool _inPeriod(SaleModel sale) {
+    final start = _periodStart();
+    if (start == null) return true;
+    final d = sale.date;
+    return d != null && !d.isBefore(start);
   }
 
   String _label(_Period p, AppStrings s) => switch (p) {
@@ -99,7 +106,14 @@ class _SaleHistoryScreenState extends ConsumerState<SaleHistoryScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
+                _SoldProductsReportCard(
+                  s: s,
+                  from: _periodStart(),
+                  periodLabel: _label(_period, s),
+                  saleCount: filtered.length,
+                ),
+                const SizedBox(height: 20),
                 if (filtered.isEmpty)
                   EmptyState(
                     icon: Icons.event_busy_rounded,
@@ -250,6 +264,113 @@ class _SummaryCard extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SoldProductsReportCard extends ConsumerStatefulWidget {
+  final AppStrings s;
+  final DateTime? from;
+  final String periodLabel;
+  final int saleCount;
+
+  const _SoldProductsReportCard({
+    required this.s,
+    required this.from,
+    required this.periodLabel,
+    required this.saleCount,
+  });
+
+  @override
+  ConsumerState<_SoldProductsReportCard> createState() =>
+      _SoldProductsReportCardState();
+}
+
+class _SoldProductsReportCardState
+    extends ConsumerState<_SoldProductsReportCard> {
+  bool _busy = false;
+
+  Future<void> _print() async {
+    final s = widget.s;
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _busy = true);
+    try {
+      final items = await ref
+          .read(saleServiceProvider)
+          .getSoldProducts(from: widget.from);
+      if (items.isEmpty) {
+        messenger.showSnackBar(SnackBar(content: Text(s.noSalesToReport)));
+        return;
+      }
+      final bytes = await PdfBuilder.buildSalesReport(
+        items,
+        s,
+        periodLabel: widget.periodLabel,
+        saleCount: widget.saleCount,
+      );
+      await PdfPrinter.print(bytes);
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('${s.pdfExportFailed} $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final s = widget.s;
+
+    return SoftCard(
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        children: [
+          Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: AppColors.accent.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(
+              Icons.summarize_rounded,
+              color: AppColors.accent,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  s.soldProductsReport,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${s.soldProductsReportHint} · ${widget.periodLabel}',
+                  style: theme.textTheme.bodySmall,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          GradientPillButton(
+            icon: Icons.print_rounded,
+            label: s.printReport,
+            busy: _busy,
+            onTap: _print,
           ),
         ],
       ),

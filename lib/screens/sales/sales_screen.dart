@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/app_strings.dart';
 import '../../core/utils/formatters.dart';
@@ -9,6 +10,8 @@ import '../../providers/sale_provider.dart';
 import '../../widgets/common/anbar_app_bar.dart';
 import '../../widgets/common/app_search_bar.dart';
 import '../../widgets/common/empty_state.dart';
+import '../../widgets/common/gradient_pill_button.dart';
+import 'sale_history_screen.dart';
 
 class SalesScreen extends ConsumerStatefulWidget {
   const SalesScreen({super.key});
@@ -43,16 +46,29 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
                 width: 18,
                 height: 18,
                 decoration: const BoxDecoration(
-                    color: AppColors.error, shape: BoxShape.circle),
+                  color: AppColors.error,
+                  shape: BoxShape.circle,
+                ),
                 child: Center(
-                  child: Text('$itemCount',
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700)),
+                  child: Text(
+                    '$itemCount',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ),
             ),
+          if (cart.isNotEmpty) const SizedBox(width: 10),
+          GradientPillButton(
+            icon: Icons.history_rounded,
+            label: s.saleHistory,
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const SaleHistoryScreen()),
+            ),
+          ),
         ],
       ),
       body: Column(
@@ -78,8 +94,9 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
                         const Center(child: CircularProgressIndicator()),
                     error: (e, _) => Center(child: Text('$e')),
                     data: (list) {
-                      final available =
-                          list.where((p) => p.quantity > 0).toList();
+                      final available = list
+                          .where((p) => p.quantity > 0)
+                          .toList();
                       if (available.isEmpty) {
                         return EmptyState(
                           icon: Icons.inventory_2_outlined,
@@ -125,11 +142,12 @@ class _ProductTile extends StatelessWidget {
   final VoidCallback onAdd;
   final AppStrings s;
 
-  const _ProductTile(
-      {required this.product,
-      this.cartItem,
-      required this.onAdd,
-      required this.s});
+  const _ProductTile({
+    required this.product,
+    this.cartItem,
+    required this.onAdd,
+    required this.s,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -157,8 +175,11 @@ class _ProductTile extends StatelessWidget {
               color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.inventory_2_rounded,
-                color: AppColors.primary, size: 22),
+            child: const Icon(
+              Icons.inventory_2_rounded,
+              color: AppColors.primary,
+              size: 22,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -179,7 +200,9 @@ class _ProductTile extends StatelessWidget {
                     const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: product.isLowStock
                             ? AppColors.warning.withValues(alpha: 0.12)
@@ -203,11 +226,13 @@ class _ProductTile extends StatelessWidget {
             ),
           ),
           if (inCart)
-            Text('×${cartItem!.quantity}',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w700,
-                )),
+            Text(
+              '×${cartItem!.quantity}',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           const SizedBox(width: 8),
           GestureDetector(
             onTap: onAdd,
@@ -221,8 +246,11 @@ class _ProductTile extends StatelessWidget {
                     : AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(Icons.add_rounded,
-                  color: inCart ? Colors.white : AppColors.primary, size: 20),
+              child: Icon(
+                Icons.add_rounded,
+                color: inCart ? Colors.white : AppColors.primary,
+                size: 20,
+              ),
             ),
           ),
         ],
@@ -239,11 +267,12 @@ class _CartPanel extends ConsumerWidget {
   final VoidCallback onClose;
   final AppStrings s;
 
-  const _CartPanel(
-      {required this.cart,
-      required this.cartNotifier,
-      required this.onClose,
-      required this.s});
+  const _CartPanel({
+    required this.cart,
+    required this.cartNotifier,
+    required this.onClose,
+    required this.s,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -284,11 +313,16 @@ class _CartPanel extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(item.product.name,
-                              style: theme.textTheme.titleMedium),
-                          Text(Formatters.currency(item.product.price),
-                              style: theme.textTheme.bodySmall
-                                  ?.copyWith(color: AppColors.primary)),
+                          Text(
+                            item.product.name,
+                            style: theme.textTheme.titleMedium,
+                          ),
+                          Text(
+                            Formatters.currency(item.product.price),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: AppColors.primary,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -301,19 +335,25 @@ class _CartPanel extends ConsumerWidget {
                               cartNotifier.removeProduct(item.product.id!);
                             } else {
                               cartNotifier.updateQuantity(
-                                  item.product.id!, item.quantity - 1);
+                                item.product.id!,
+                                item.quantity - 1,
+                              );
                             }
                           },
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text('${item.quantity}',
-                              style: theme.textTheme.titleMedium),
+                          child: Text(
+                            '${item.quantity}',
+                            style: theme.textTheme.titleMedium,
+                          ),
                         ),
                         _QtyButton(
                           icon: Icons.add_rounded,
                           onTap: () => cartNotifier.updateQuantity(
-                              item.product.id!, item.quantity + 1),
+                            item.product.id!,
+                            item.quantity + 1,
+                          ),
                         ),
                       ],
                     ),
@@ -321,8 +361,9 @@ class _CartPanel extends ConsumerWidget {
                     Text(
                       Formatters.currency(item.subtotal),
                       style: theme.textTheme.titleSmall?.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w700),
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ],
                 ),
@@ -331,7 +372,11 @@ class _CartPanel extends ConsumerWidget {
           ),
         ),
         _CompleteSaleBar(
-            cart: cart, cartNotifier: cartNotifier, onClose: onClose, s: s),
+          cart: cart,
+          cartNotifier: cartNotifier,
+          onClose: onClose,
+          s: s,
+        ),
       ],
     );
   }
@@ -367,11 +412,12 @@ class _CompleteSaleBar extends ConsumerStatefulWidget {
   final VoidCallback onClose;
   final AppStrings s;
 
-  const _CompleteSaleBar(
-      {required this.cart,
-      required this.cartNotifier,
-      required this.onClose,
-      required this.s});
+  const _CompleteSaleBar({
+    required this.cart,
+    required this.cartNotifier,
+    required this.onClose,
+    required this.s,
+  });
 
   @override
   ConsumerState<_CompleteSaleBar> createState() => _CompleteSaleBarState();
@@ -382,8 +428,7 @@ class _CompleteSaleBarState extends ConsumerState<_CompleteSaleBar> {
 
   Future<void> _confirm() async {
     setState(() => _loading = true);
-    final ok =
-        await ref.read(salesProvider.notifier).completeSale(widget.cart);
+    final ok = await ref.read(salesProvider.notifier).completeSale(widget.cart);
     if (!mounted) return;
     setState(() => _loading = false);
     if (ok) {
@@ -393,10 +438,12 @@ class _CompleteSaleBarState extends ConsumerState<_CompleteSaleBar> {
       ref.invalidate(lowStockCountProvider);
       ref.invalidate(totalProductsProvider);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(widget.s.saleSuccess),
-          backgroundColor: AppColors.success,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(widget.s.saleSuccess),
+            backgroundColor: AppColors.success,
+          ),
+        );
       }
     }
   }
@@ -422,13 +469,18 @@ class _CompleteSaleBarState extends ConsumerState<_CompleteSaleBar> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(widget.s.total,
-                    style: const TextStyle(color: Colors.white70, fontSize: 12)),
-                Text(Formatters.currency(total),
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800)),
+                Text(
+                  widget.s.total,
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                ),
+                Text(
+                  Formatters.currency(total),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
               ],
             ),
             const Spacer(),
@@ -439,14 +491,19 @@ class _CompleteSaleBarState extends ConsumerState<_CompleteSaleBar> {
                       backgroundColor: Colors.white,
                       foregroundColor: AppColors.primary,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12),
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                     onPressed: _confirm,
                     icon: const Icon(Icons.check_rounded, size: 18),
-                    label: Text(widget.s.completeSale,
-                        style: const TextStyle(fontWeight: FontWeight.w700)),
+                    label: Text(
+                      widget.s.completeSale,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
                   ),
           ],
         ),
@@ -462,8 +519,11 @@ class _CheckoutBar extends StatelessWidget {
   final VoidCallback onCheckout;
   final AppStrings s;
 
-  const _CheckoutBar(
-      {required this.total, required this.onCheckout, required this.s});
+  const _CheckoutBar({
+    required this.total,
+    required this.onCheckout,
+    required this.s,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -473,9 +533,11 @@ class _CheckoutBar extends StatelessWidget {
         child: ElevatedButton(
           onPressed: onCheckout,
           style: ElevatedButton.styleFrom(
-              minimumSize: const Size.fromHeight(52),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14))),
+            minimumSize: const Size.fromHeight(52),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -483,8 +545,10 @@ class _CheckoutBar extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 '${s.viewCart}  •  ${Formatters.currency(total)}',
-                style:
-                    const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ],
           ),

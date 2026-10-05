@@ -5,7 +5,11 @@ class LoadingOverlay extends StatelessWidget {
   final bool isLoading;
   final Widget child;
 
-  const LoadingOverlay({super.key, required this.isLoading, required this.child});
+  const LoadingOverlay({
+    super.key,
+    required this.isLoading,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -47,23 +51,27 @@ class AsyncValueWidget<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     return value.when(
       data: builder,
-      loading: () => loadingWidget ?? const Center(child: CircularProgressIndicator()),
-      error: (e, st) =>
-          errorBuilder != null
-              ? errorBuilder!(e, st)
-              : Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.error_outline, color: Colors.red, size: 48),
-                        const SizedBox(height: 12),
-                        Text(e.toString(), textAlign: TextAlign.center),
-                      ],
+      loading: () =>
+          loadingWidget ?? const Center(child: CircularProgressIndicator()),
+      error: (e, st) => errorBuilder != null
+          ? errorBuilder!(e, st)
+          : Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                      size: 48,
                     ),
-                  ),
+                    const SizedBox(height: 12),
+                    Text(e.toString(), textAlign: TextAlign.center),
+                  ],
                 ),
+              ),
+            ),
     );
   }
 }

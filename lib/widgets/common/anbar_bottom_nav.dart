@@ -1,4 +1,7 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_colors.dart';
 
 class AnbarBottomNav extends StatelessWidget {
@@ -15,44 +18,102 @@ class AnbarBottomNav extends StatelessWidget {
     this.lowStock = 0,
   });
 
+  static const _radius = BorderRadius.all(Radius.circular(40));
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(22, 0, 22, 10 + (bottomInset > 0 ? bottomInset : 8)),
+      padding: EdgeInsets.fromLTRB(
+        22,
+        0,
+        22,
+        10 + (bottomInset > 0 ? bottomInset : 8),
+      ),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurface : Colors.white,
-          borderRadius: BorderRadius.circular(40),
+          borderRadius: _radius,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
+              color: Colors.black.withValues(alpha: isDark ? 0.30 : 0.06),
               blurRadius: 24,
               offset: const Offset(0, 8),
             ),
           ],
         ),
-        child: SizedBox(
-          height: 68,
-          child: Row(
-            children: [
-              for (var i = 0; i < items.length; i++)
-                Expanded(
-                  child: _NavButton(
-                    item: items[i],
-                    selected: i == index,
-                    badge: i == 2 && lowStock > 0 ? lowStock : null,
-                    onTap: () => onChanged(i),
+        child: CustomPaint(
+          foregroundPainter: const _GradientBorderPainter(
+            width: 0.5,
+            radius: 40,
+            colors: AppColors.brandGradient,
+          ),
+          child: ClipRRect(
+            borderRadius: _radius,
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: (isDark ? AppColors.darkSurface : Colors.white)
+                      .withValues(alpha: isDark ? 0.6 : 0.7),
+                  borderRadius: _radius,
+                ),
+                child: SizedBox(
+                  height: 68,
+                  child: Row(
+                    children: [
+                      for (var i = 0; i < items.length; i++)
+                        Expanded(
+                          child: _NavButton(
+                            item: items[i],
+                            selected: i == index,
+                            badge: i == 2 && lowStock > 0 ? lowStock : null,
+                            onTap: () => onChanged(i),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-            ],
+              ),
+            ),
           ),
         ),
       ),
     );
   }
+}
+
+class _GradientBorderPainter extends CustomPainter {
+  final double width;
+  final double radius;
+  final List<Color> colors;
+
+  const _GradientBorderPainter({
+    required this.width,
+    required this.radius,
+    required this.colors,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = width
+      ..shader = LinearGradient(colors: colors).createShader(rect);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        rect.deflate(width / 2),
+        Radius.circular(radius - width / 2),
+      ),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_GradientBorderPainter old) =>
+      old.width != width || old.radius != radius || old.colors != colors;
 }
 
 class AnbarNavItem {

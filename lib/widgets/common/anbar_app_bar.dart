@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -50,7 +52,7 @@ class AnbarAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
 
     return Material(
-      color: backgroundColor ?? theme.scaffoldBackgroundColor,
+      color: backgroundColor ?? Colors.transparent,
       child: SafeArea(
         bottom: false,
         child: Column(
@@ -268,12 +270,22 @@ class AnbarHomeAppBar extends StatelessWidget {
     return SliverAppBar(
       pinned: true,
       toolbarHeight: 76,
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: WidgetStateColor.resolveWith(
+        (states) => states.contains(WidgetState.scrolledUnder)
+            ? theme.colorScheme.surface.withValues(alpha: isDark ? 0.6 : 0.7)
+            : Colors.transparent,
+      ),
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
       automaticallyImplyLeading: false,
       titleSpacing: 0,
+      flexibleSpace: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: const SizedBox.expand(),
+        ),
+      ),
       bottom: const PreferredSize(
         preferredSize: Size.fromHeight(BrandStripe.height),
         child: BrandStripe(),

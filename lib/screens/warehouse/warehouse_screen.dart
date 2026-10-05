@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/app_strings.dart';
 import '../../widgets/common/anbar_app_bar.dart';
@@ -12,6 +13,7 @@ import '../../providers/product_provider.dart';
 import '../../providers/vendor_provider.dart';
 import '../../widgets/common/app_search_bar.dart';
 import '../../widgets/common/empty_state.dart';
+import '../../widgets/common/gradient_pill_button.dart';
 import 'add_product_sheet.dart';
 import 'product_detail_sheet.dart';
 
@@ -29,13 +31,7 @@ class WarehouseScreen extends ConsumerWidget {
         title: s.warehouse,
         icon: Icons.warehouse_rounded,
         showBack: false,
-        actions: [
-          AppBarAction(
-            icon: Icons.picture_as_pdf_rounded,
-            tooltip: s.exportPdf,
-            onTap: () => _exportPdf(context, ref, s),
-          ),
-        ],
+        actions: [_WarehouseReportButton(s: s)],
       ),
       body: Column(
         children: [
@@ -64,7 +60,9 @@ class WarehouseScreen extends ConsumerWidget {
                         : s.tapToAddProduct,
                     actionLabel: filter.hasActiveFilter ? s.clearFilters : null,
                     onAction: filter.hasActiveFilter
-                        ? () => ref.read(productFilterProvider.notifier).clearAll()
+                        ? () => ref
+                              .read(productFilterProvider.notifier)
+                              .clearAll()
                         : null,
                   );
                 }
@@ -95,26 +93,57 @@ class WarehouseScreen extends ConsumerWidget {
       ),
     );
   }
+}
 
-  Future<void> _exportPdf(
-      BuildContext context, WidgetRef ref, AppStrings s) async {
+// ── Warehouse Report (PDF) button ───────────────────────────────────────────
+
+class _WarehouseReportButton extends ConsumerStatefulWidget {
+  final AppStrings s;
+  const _WarehouseReportButton({required this.s});
+
+  @override
+  ConsumerState<_WarehouseReportButton> createState() =>
+      _WarehouseReportButtonState();
+}
+
+class _WarehouseReportButtonState
+    extends ConsumerState<_WarehouseReportButton> {
+  bool _busy = false;
+
+  Future<void> _export() async {
+    final s = widget.s;
+    final messenger = ScaffoldMessenger.of(context);
     final products = ref.read(productsProvider).valueOrNull ?? [];
     if (products.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(s.noProductsToExport)));
+      messenger.showSnackBar(SnackBar(content: Text(s.noProductsToExport)));
       return;
     }
+    setState(() => _busy = true);
     try {
       final bytes = await PdfBuilder.build(products, s);
       await PdfPrinter.print(bytes);
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      messenger.showSnackBar(
+        SnackBar(
           content: Text('${s.pdfExportFailed} $e'),
           backgroundColor: AppColors.error,
-        ));
-      }
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GradientPillButton(
+      icon: Icons.picture_as_pdf_rounded,
+      iconColor: AppColors.accent,
+      label: widget.s.warehouseReport,
+      tooltip: widget.s.exportPdf,
+      busy: _busy,
+      onTap: _export,
+    );
   }
 }
 
@@ -146,18 +175,20 @@ class _FilterChips extends ConsumerWidget {
                 avatar: const Icon(Icons.close_rounded, size: 14),
                 onPressed: () => notifier.clearAll(),
                 backgroundColor: AppColors.error.withValues(alpha: 0.1),
-                labelStyle:
-                    const TextStyle(color: AppColors.error, fontSize: 12),
+                labelStyle: const TextStyle(
+                  color: AppColors.error,
+                  fontSize: 12,
+                ),
                 side: const BorderSide(color: AppColors.error),
               ),
             ),
           _DropdownChip(
             label: filter.categoryId != null
                 ? (categories
-                        .where((c) => c.id == filter.categoryId)
-                        .firstOrNull
-                        ?.name ??
-                    s.category)
+                          .where((c) => c.id == filter.categoryId)
+                          .firstOrNull
+                          ?.name ??
+                      s.category)
                 : s.category,
             isActive: filter.categoryId != null,
             items: categories
@@ -171,10 +202,10 @@ class _FilterChips extends ConsumerWidget {
           _DropdownChip(
             label: filter.departmentId != null
                 ? (departments
-                        .where((d) => d.id == filter.departmentId)
-                        .firstOrNull
-                        ?.name ??
-                    s.department)
+                          .where((d) => d.id == filter.departmentId)
+                          .firstOrNull
+                          ?.name ??
+                      s.department)
                 : s.department,
             isActive: filter.departmentId != null,
             items: departments
@@ -188,10 +219,10 @@ class _FilterChips extends ConsumerWidget {
           _DropdownChip(
             label: filter.vendorId != null
                 ? (vendors
-                        .where((v) => v.id == filter.vendorId)
-                        .firstOrNull
-                        ?.name ??
-                    s.vendor)
+                          .where((v) => v.id == filter.vendorId)
+                          .firstOrNull
+                          ?.name ??
+                      s.vendor)
                 : s.vendor,
             isActive: filter.vendorId != null,
             items: vendors
@@ -245,20 +276,24 @@ class _DropdownChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: isActive
-                      ? AppColors.primary
-                      : theme.colorScheme.onSurfaceVariant,
-                )),
-            const SizedBox(width: 4),
-            Icon(Icons.arrow_drop_down_rounded,
-                size: 16,
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
                 color: isActive
                     ? AppColors.primary
-                    : theme.colorScheme.onSurfaceVariant),
+                    : theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.arrow_drop_down_rounded,
+              size: 16,
+              color: isActive
+                  ? AppColors.primary
+                  : theme.colorScheme.onSurfaceVariant,
+            ),
           ],
         ),
       ),
@@ -279,15 +314,17 @@ class _DropdownChip extends StatelessWidget {
               Navigator.pop(ctx);
             },
           ),
-          ...items.map((item) => ListTile(
-                title: item.child,
-                selected: item.value == value,
-                selectedColor: AppColors.primary,
-                onTap: () {
-                  onChanged(item.value);
-                  Navigator.pop(ctx);
-                },
-              )),
+          ...items.map(
+            (item) => ListTile(
+              title: item.child,
+              selected: item.value == value,
+              selectedColor: AppColors.primary,
+              onTap: () {
+                onChanged(item.value);
+                Navigator.pop(ctx);
+              },
+            ),
+          ),
         ],
       ),
     );
@@ -366,12 +403,16 @@ class _ProductCard extends ConsumerWidget {
                 Text(
                   Formatters.currency(product.price),
                   style: theme.textTheme.titleSmall?.copyWith(
-                      color: AppColors.primary, fontWeight: FontWeight.w700),
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: isLow
                         ? AppColors.warning.withValues(alpha: 0.12)
@@ -409,9 +450,14 @@ class _Tag extends StatelessWidget {
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
       ),
-      child: Text(label,
-          style: TextStyle(
-              fontSize: 10, fontWeight: FontWeight.w600, color: color)),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          color: color,
+        ),
+      ),
     );
   }
 }
